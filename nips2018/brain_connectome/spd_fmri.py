@@ -29,15 +29,15 @@ TRAIN_SIZE = 0.85
 
 
 def import_data():
-    graphs = pd.DataFrame.from_csv('data/train_fnc.csv')
-    map_functional = pd.DataFrame.from_csv('add_info/comp_ind_fmri.csv',
-                                           index_col=None)
+    graphs = pd.read_csv('data/train_fnc.csv')
+    map_functional = pd.read_csv('add_info/comp_ind_fmri.csv',
+            index_col=None)
     map_functional = map_functional['fMRI_comp_ind'].to_dict()
     map_functional_r = {v: k for k, v
                         in map_functional.items()}
-    mapping = pd.DataFrame.from_csv('add_info/' +
-                                    'rs_fmri_fnc_mapping.csv')
-    graph_labels = pd.DataFrame.from_csv('data/train_labels.csv')
+    mapping = pd.read_csv('add_info/' +
+                          'rs_fmri_fnc_mapping.csv')
+    graph_labels = pd.read_csv('data/train_labels.csv')
     all_graphs = [None] * N_GRAPHS
     all_targets = np.zeros(N_GRAPHS)
 
@@ -58,7 +58,7 @@ def import_data():
     all_targets = np.array(all_targets)
 
     np.random.seed(RAND_SEED)
-    index_train = list(range(N_NODES))
+    index_train = list(range(N_GRAPHS))
     np.random.shuffle(index_train)
     stop = int(TRAIN_SIZE * N_GRAPHS)
     labels = all_targets[index_train]
@@ -195,9 +195,9 @@ if __name__ == '__main__':
     for type_dist in DISTANCES:
         plt.plot(SIGMAS, mean_acc[type_dist],
                  label=type_dist + ' \nDistance')
-    plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5), fontsize=18)
-    plt.xlabel(r'$\sigma$', fontsize=24)
-    plt.ylabel(r'CV accuracy', fontsize=20)
+    plt.legend()
+    plt.xlabel(r'$\sigma$')
+    plt.ylabel(r'CV accuracy')
     plt.show()
 
     # Plot Clustermap representation
@@ -206,7 +206,7 @@ if __name__ == '__main__':
         kernel_dist = np.exp(-np.square(distance_dict[type_dist])
                              / (sigma_chosen[type_dist]**2))
         linkage = hc.linkage(kernel_dist, method='average')
-        sb.clustermap(kernel_dist, row_linkage=linkage, col_linkage=linkage,
-                      cmap='coolwarm', xticklabels=labels, yticklabels=labels)
-        plt.title('Clustermap for the ' + type_distance + ' distance')
+        g= sb.clustermap(kernel_dist, row_linkage=linkage, col_linkage=linkage,
+                         cmap='coolwarm', xticklabels=labels, yticklabels=labels)
+        g.fig.suptitle('Clustermap for the ' + type_dist + ' distance')
         plt.show()
